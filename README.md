@@ -163,3 +163,31 @@ public static IActionResult Run(
     return new OkObjectResult(weatherforecastItems);
 }
 ```
+
+### Generate weather data
+
+* Add a function called *CollectWeatherData*
+* Select *TimerTrigger*
+* Specify time interval to 1 minute `00:01:00`
+* Cut/Paste the *GetSummary* method from *WeatherForecast* function into *CollectWeatherData*
+* Add a CosmosDB output binding to write data to the database
+
+``` Csharp
+[FunctionName("CollectWeatherData")]
+public static void Run([TimerTrigger("00:01:00")]TimerInfo myTimer,
+    [CosmosDB("WeatherForecast", "Data",
+        ConnectionStringSetting = "ConnectionStrings:WeatherForecastDatabase"
+        )] out WeatherForecast weatherForecat,
+    ILogger log)
+{
+    var temp = random.Next(-20, 55);
+    weatherForecat = new WeatherForecast
+    {
+        Date = DateTime.Now,
+        TemperatureC = temp,
+        Summary = GetSummary(temp)
+    };
+
+    log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
+}
+```
