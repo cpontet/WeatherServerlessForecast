@@ -7,6 +7,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 
 using BlazorApp.Shared;
+using System.Collections.Generic;
 
 namespace BlazorApp.Api
 {
@@ -35,19 +36,16 @@ namespace BlazorApp.Api
         [FunctionName("WeatherForecast")]
         public static IActionResult Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
+            [CosmosDB("WeatherForecast", "Data",
+                ConnectionStringSetting = "ConnectionStrings:WeatherForecastDatabase"                
+                )] IEnumerable<WeatherForecast> weatherForecatItems,
             ILogger log)
         {
-            var randomNumber = new Random();
-            var temp = 0;
-
-            var result = Enumerable.Range(1, 5).Select(index => new WeatherForecast
-            {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = temp = randomNumber.Next(-20, 55),
-                Summary = GetSummary(temp)
-            }).ToArray();
-
-            return new OkObjectResult(result);
+            log.LogInformation($"Fetched {weatherForecatItems.Count()} items from Weatherforecast");
+            
+            return new OkObjectResult(weatherForecatItems);
         }
+
+
     }
 }
