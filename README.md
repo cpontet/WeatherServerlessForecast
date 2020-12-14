@@ -110,9 +110,56 @@ public static void Run([CosmosDBTrigger(
 
 For more info look at [Create a function triggered by Azure Cosmos DB](https://docs.microsoft.com/en-us/azure/azure-functions/functions-create-cosmos-db-triggered-function)
 
-### Test the function
+* Test the function
+  * Start the Api project in Visual Studio
+  * Add a new record in the database and see that the function is triggered
 
-* Start the app in Visual Studio
-* Add a new record in the database and see that the function is triggered
+### Modify the WeatherForecast function to read from the database
 
-### 
+* Open *WeatherForecastFunction.cs*
+* Modify the signature and body of the function
+
+``` Csharp
+[FunctionName("WeatherForecast")]
+public static IActionResult Run(
+    [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
+    [CosmosDB("WeatherForecast", "Data",
+        ConnectionStringSetting = "ConnectionStrings:WeatherForecastDatabase"                
+        )] IEnumerable<WeatherForecast> weatherForecatItems,
+    ILogger log)
+{
+    log.LogInformation($"Fetched {weatherForecatItems.Count()} items from Weatherforecast");
+
+    return new OkObjectResult(weatherForecatItems);
+}
+```
+
+* Test the function
+  * Start both the Api and Client projects in Visual Studio
+  * Navigate to the *Fetch data* page in the web app
+  * Notice that the data is coming from your database
+ 
+
+### Add WeatherByDate function
+
+* Add a new function called *WeatherByDate*
+* Select *HttpTrigger*
+* Modify the signature and body of the function
+  * Notice the *Route* parameter in the CosmosDB binding attribute
+  * Notice the SqlQuery parameter in teh CosmosDB binding attrebute
+
+``` Csharp
+[FunctionName("WeatherByDate")]
+public static IActionResult Run(
+    [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "weatherbydate/{date}")] HttpRequest req,
+    [CosmosDB("WeatherForecast", "Data",
+        ConnectionStringSetting = "ConnectionStrings:WeatherForecastDatabase",
+        SqlQuery = "select * from WeatherForecast w where w.date = {date}")]
+        IEnumerable<WeatherForecast> weatherforecastItems,
+    ILogger log)
+{
+    log.LogInformation($"Found {weatherforecastItems.Count()} weather forecast items matching this date");
+
+    return new OkObjectResult(weatherforecastItems);
+}
+```
