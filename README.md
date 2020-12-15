@@ -233,6 +233,72 @@ public static IActionResult Generate(
   * Paste it in a new *GET* request
   * Notice the result int the *Body* tab
 
+## Add a refresh button
+
+* Open `FetchData.razor`
+* Add a `Refresh` button
+* Add the Time column header
+* Add the Time column
+
+``` html
+    <button class="btn btn-primary" @onclick="Refresh">Refresh</button>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Temp. (C)</th>
+                <th>Temp. (F)</th>
+                <th>Summary</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in forecasts)
+            {
+                <tr>
+                    <td>@forecast.Date.ToShortDateString()</td>
+                    <td>@forecast.Date.ToShortTimeString()</td>
+                    <td>@forecast.TemperatureC</td>
+                    <td>@forecast.TemperatureF</td>
+                    <td>@forecast.Summary</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+```
+
+* Implement a `Refresh` method
+* Call it from `OnInitializedAsync`
+
+``` Csharp
+    protected override async Task OnInitializedAsync()
+    {
+        await Refresh();
+    }
+
+    private async Task Refresh()
+    {
+        try
+        {
+            Console.WriteLine("Refreshing weather forecast");
+            forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("/api/WeatherForecast");
+            Console.WriteLine($"{forecasts.Length} weather forecast items found");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+        }
+    }
+```
+
+* Test the refresh button
+  * Start both *Api* and *Client* projects
+  * Navigate to *Fetch Data*
+  * Use Postman to generate a new record
+  * Click *Refresh*
+  * The new record should appear
+
+
 ## Create a pull request
 
 * Create a pull request 
@@ -241,9 +307,10 @@ public static IActionResult Generate(
 * Wait for the deployment to be over
 * Navigate to your Azure Static Web App
 * Open the *Functions* tab
-* You should see your functions there
+  * Select the `#1 - Cosmosdbbindings` environment in the drop-down list
+  * You should see your functions there
 * Open the *Configuration* tab
-* Select the `Staging` environment in the drop down list
-* Add your connection string
+    * Select the `#1 - Cosmosdbbindings` environment in the drop-down list
+    * Add your connection string as 
 * Go to the *Environements* tab
 * Browse the *Staging* environment
