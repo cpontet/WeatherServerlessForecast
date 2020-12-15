@@ -28,26 +28,26 @@ namespace BlazorApp.Api
             return new OkObjectResult(weatherForecatItems);
         }
 
-        [FunctionName("OnWeatherChanged")]
-        public static void OnWeatherChanged([CosmosDBTrigger("WeatherForecast", "Data",
-                ConnectionStringSetting = "ConnectionStrings:WeatherForecastDatabase",
-                LeaseCollectionName = "leases",
-                CreateLeaseCollectionIfNotExists = true
-            )]IReadOnlyList<Document> input,
-            ILogger log)
-        {
-            if (input != null && input.Count > 0)
-            {
-                log.LogInformation("Documents modified " + input.Count);
-                foreach (var item in input)
-                {
-                    WeatherForecast weatherforecast = JsonConvert.DeserializeObject<WeatherForecast>(item.ToString());
-                    log.LogInformation("Date " + weatherforecast.Date);
-                    log.LogInformation("Temp " + weatherforecast.TemperatureC);
-                    log.LogInformation("Summary " + weatherforecast.Summary);
-                }
-            }
-        }
+        //[FunctionName("OnWeatherChanged")]
+        //public static void OnWeatherChanged([CosmosDBTrigger("WeatherForecast", "Data",
+        //        ConnectionStringSetting = "ConnectionStrings:WeatherForecastDatabase",
+        //        LeaseCollectionName = "leases",
+        //        CreateLeaseCollectionIfNotExists = true
+        //    )]IReadOnlyList<Document> input,
+        //    ILogger log)
+        //{
+        //    if (input != null && input.Count > 0)
+        //    {
+        //        log.LogInformation("Documents modified " + input.Count);
+        //        foreach (var item in input)
+        //        {
+        //            WeatherForecast weatherforecast = JsonConvert.DeserializeObject<WeatherForecast>(item.ToString());
+        //            log.LogInformation("Date " + weatherforecast.Date);
+        //            log.LogInformation("Temp " + weatherforecast.TemperatureC);
+        //            log.LogInformation("Summary " + weatherforecast.Summary);
+        //        }
+        //    }
+        //}
 
         [FunctionName("WeatherByDate")]
         public static IActionResult ByDate(
